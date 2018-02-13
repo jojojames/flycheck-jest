@@ -1,0 +1,15 @@
+#+TITLE: Flycheck Jest
+
+* flycheck-jest
+  Flycheck extension for [[https://facebook.github.io/jest/][jest]].
+
+* Install
+  Clone this and add to load-path.
+
+  #+begin_src emacs-lisp :tangle yes
+(use-package flycheck-jest
+  :load-path "cloned-path"
+  :ensure nil
+  :config
+  (flycheck-jest-setup))
+  #+end_src
