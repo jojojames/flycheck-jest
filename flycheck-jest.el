@@ -150,7 +150,11 @@
 
 Result is a list of plists with the form:
 
-'(:line 12 :column 23 :error \"This is an error message.\" :filename \"absolute-path-to-file\")"
+'(:line 12
+  :column 23
+  :error \"This is an error message.\"
+  :filename \"absolute-path-to-file\")
+"
   (when (eq (alist-get 'success json) :json-false)
     (let ((testResults (alist-get 'testResults json)))
       (car
