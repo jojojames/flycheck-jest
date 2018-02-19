@@ -120,7 +120,9 @@
           (flycheck-jest--find-jest-project-directory)))
 
 (defun flycheck-jest--result-path (&optional buffer)
-  "Return the path `flycheck-jest' writes json reports to."
+  "Return the path `flycheck-jest' writes json reports to.
+
+If BUFFER is not nil, use that to determine the base of the file name."
   (unless (file-exists-p flycheck-jest-report-directory)
     (make-directory flycheck-jest-report-directory))
   (let ((base-name
@@ -131,7 +133,10 @@
                               flycheck-jest-report-directory base-name))))
 
 (defun flycheck-jest--parse (_output checker buffer)
-  "`flycheck' parser for jest output."
+  "`flycheck' parser for jest output.
+
+CHECKER is the jest checker.
+BUFFER is the buffer being checked."
   (let* ((jest-result-file (flycheck-jest--result-path buffer))
          (json (json-read-file jest-result-file)))
     (let ((jest-results (flycheck-jest--parse-json json)))
@@ -153,8 +158,7 @@ Result is a list of plists with the form:
 '(:line 12
   :column 23
   :error \"This is an error message.\"
-  :filename \"absolute-path-to-file\")
-"
+  :filename \"absolute-path-to-file\")"
   (when (eq (alist-get 'success json) :json-false)
     (let ((testResults (alist-get 'testResults json)))
       (car
