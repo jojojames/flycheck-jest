@@ -108,7 +108,7 @@
 (defun flycheck-jest--set-flychecker-executable ()
   "Set `flycheck-jest' executable according to jest location."
   (setq flycheck-jest-executable
-        (format "node %snode_modules/jest/bin/jest.js"
+        (format "node %snode_modules/.bin/jest"
                 (flycheck-jest--find-jest-project-directory))))
 
 (defun flycheck-jest--should-use-p ()
@@ -116,7 +116,7 @@
   (and buffer-file-name
        (string-match-p "test" buffer-file-name)
        (file-exists-p (expand-file-name
-                       (format "%snode_modules/jest/bin/jest.js"
+                       (format "%snode_modules/.bin/jest"
                                (flycheck-jest--find-jest-project-directory))))))
 
 (defun flycheck-jest--path ()
