@@ -114,8 +114,9 @@
   "Return whether or not `flycheck-jest' should run."
   (and buffer-file-name
        (string-match-p "test" buffer-file-name)
-       (file-exists-p (format "%snode_modules/jest/bin/jest.js"
-                              (flycheck-jest--find-jest-project-directory)))))
+       (file-exists-p (expand-file-name
+                       (format "%snode_modules/jest/bin/jest.js"
+                               (flycheck-jest--find-jest-project-directory))))))
 
 (defun flycheck-jest--path ()
   "Path in project jest should be located."
