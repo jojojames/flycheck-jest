@@ -173,16 +173,36 @@ Result is a list of plists with the form:
                 (message (alist-get 'message testResult)))
             (mapcar
              (lambda (s)
-               (let* ((split (split-string s "at Object.<anonymous>" t))
-                      (error-message (string-trim (car split)))
-                      (linenumbers-str (cadr split))
-                      (line (flycheck-jest--extract-line linenumbers-str))
-                      (col (flycheck-jest--extract-column linenumbers-str)))
-                 `(
-                   :line ,line
-                   :column ,col
-                   :error ,error-message
-                   :filename ,filename)))
+               (cond
+                ((string-match-p "at Object.<anonymous>" s)
+                 (let* ((split (split-string s "at Object.<anonymous>" t))
+                        (error-message (string-trim (car split)))
+                        (linenumbers-str (cadr split))
+                        (line (flycheck-jest--extract-line linenumbers-str))
+                        (col (flycheck-jest--extract-column linenumbers-str)))
+                   `(
+                     :line ,line
+                     :column ,col
+                     :error ,error-message
+                     :filename ,filename)))
+                ;; FIXME: This is fairly duplicated and it'd be nice to figure
+                ;; out how to grab the line and column numbers without resorting
+                ;; to explicit pattern patches.
+                ((string-match "at _callee\\(\[[:digit:]]\\)\\$" s)
+                 (let* ((split (split-string
+                                s "at _callee\\(\[[:digit:]]\\)\\$" t))
+                        (error-message (string-trim (car split)))
+                        ;; The cadr of the split will be a stacktrace. We only
+                        ;; care about the first line of the stacktrace.
+                        (linenumbers-str (car (split-string (cadr split) "\n")))
+                        (line (flycheck-jest--extract-line linenumbers-str))
+                        (col (flycheck-jest--extract-column linenumbers-str)))
+                   `(
+                     :line ,line
+                     :column ,col
+                     :error ,error-message
+                     :filename ,filename)))
+                (:default nil)))
              (seq-filter (lambda (s)
                            (not (string-blank-p s)))
                          (split-string message "●" t)))))
