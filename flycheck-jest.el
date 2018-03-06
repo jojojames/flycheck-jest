@@ -99,6 +99,7 @@
   "Return directory containing project-related jest files or nil."
   (expand-file-name
    (or
+    (locate-dominating-file buffer-file-name "node_modules/.bin/jest")
     (locate-dominating-file buffer-file-name "app.json")
     (locate-dominating-file buffer-file-name ".npmrc")
     (locate-dominating-file buffer-file-name ".git")
