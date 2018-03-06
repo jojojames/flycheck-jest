@@ -60,6 +60,8 @@
   :group 'flycheck-jest)
 
 ;;; Flycheck
+(defvar flycheck-jest-modes '(web-mode js-mode typescript-mode rjsx-mode)
+  "A list of modes for use with `flycheck-jest'.")
 
 (flycheck-def-executable-var jest "jest")
 
@@ -96,23 +98,27 @@
 
 (defun flycheck-jest--find-jest-project-directory (&optional _checker)
   "Return directory containing project-related jest files or nil."
-  (expand-file-name
-   (or
-    (locate-dominating-file buffer-file-name "node_modules/.bin/jest")
-    (locate-dominating-file buffer-file-name "app.json")
-    (locate-dominating-file buffer-file-name ".npmrc")
-    (locate-dominating-file buffer-file-name ".git")
-    (locate-dominating-file buffer-file-name "package.json"))))
+  (when buffer-file-name
+    (flycheck-jest-when-let*
+        ((path (or
+                (locate-dominating-file buffer-file-name "node_modules/.bin/jest")
+                (locate-dominating-file buffer-file-name "app.json")
+                (locate-dominating-file buffer-file-name ".npmrc")
+                (locate-dominating-file buffer-file-name ".git")
+                (locate-dominating-file buffer-file-name "package.json"))))
+      (expand-file-name path))))
 
 (defun flycheck-jest--set-flychecker-executable ()
   "Set `flycheck-jest' executable according to jest location."
-  (setq flycheck-jest-executable
-        (format "%snode_modules/.bin/jest"
-                (flycheck-jest--find-jest-project-directory))))
+  (when (flycheck-jest--should-use-p)
+    (setq flycheck-jest-executable
+          (format "%snode_modules/.bin/jest"
+                  (flycheck-jest--find-jest-project-directory)))))
 
 (defun flycheck-jest--should-use-p ()
   "Return whether or not `flycheck-jest' should run."
   (and buffer-file-name
+       (memq major-mode flycheck-jest-modes)
        (string-match-p "test" buffer-file-name)
        (file-exists-p
         (format "%snode_modules/.bin/jest"
