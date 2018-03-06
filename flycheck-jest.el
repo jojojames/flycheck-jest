@@ -70,8 +70,7 @@
 
 (flycheck-define-checker jest
   "Flycheck plugin for for Jest."
-  :command ("node"
-            (eval (flycheck-jest--path))
+  :command ("jest"
             "--json"
             "--testPathPattern"
             (eval buffer-file-name)
@@ -108,21 +107,16 @@
 (defun flycheck-jest--set-flychecker-executable ()
   "Set `flycheck-jest' executable according to jest location."
   (setq flycheck-jest-executable
-        (format "node %snode_modules/.bin/jest"
+        (format "%snode_modules/.bin/jest"
                 (flycheck-jest--find-jest-project-directory))))
 
 (defun flycheck-jest--should-use-p ()
   "Return whether or not `flycheck-jest' should run."
   (and buffer-file-name
        (string-match-p "test" buffer-file-name)
-       (file-exists-p (expand-file-name
-                       (format "%snode_modules/.bin/jest"
-                               (flycheck-jest--find-jest-project-directory))))))
-
-(defun flycheck-jest--path ()
-  "Path in project jest should be located."
-  (format "%snode_modules/jest/bin/jest.js"
-          (flycheck-jest--find-jest-project-directory)))
+       (file-exists-p
+        (format "%snode_modules/.bin/jest"
+                (flycheck-jest--find-jest-project-directory)))))
 
 (defun flycheck-jest--result-path (&optional buffer)
   "Return the path `flycheck-jest' writes json reports to.
