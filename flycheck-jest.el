@@ -90,7 +90,10 @@
 (defun flycheck-jest-setup ()
   "Setup Flycheck for Jest."
   (interactive)
-  (add-to-list 'flycheck-checkers 'jest))
+  (add-to-list 'flycheck-checkers 'jest)
+
+  (add-hook 'flycheck-before-syntax-check-hook
+            #'flycheck-jest--set-flychecker-executable))
 
 (defun flycheck-jest--find-jest-project-directory (&optional _checker)
   "Return directory containing project-related jest files or nil."
