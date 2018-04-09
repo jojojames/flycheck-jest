@@ -75,7 +75,7 @@
   :command ("jest"
             "--json"
             "--testPathPattern"
-            (eval buffer-file-name)
+            source-inplace
             "--outputFile"
             (eval (flycheck-jest--result-path)))
   :error-parser flycheck-jest--parse
