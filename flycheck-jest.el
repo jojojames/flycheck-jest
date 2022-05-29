@@ -53,12 +53,6 @@
   "A `flycheck' extension for jest."
   :group 'programming)
 
-(defcustom flycheck-jest-report-directory
-  (format "%s.jest-reports" user-emacs-directory)
-  "Where jest stores results for each test run."
-  :type 'string
-  :group 'flycheck-jest)
-
 ;;; Flycheck
 (defvar flycheck-jest-modes '(web-mode js-mode typescript-mode rjsx-mode)
   "A list of modes for use with `flycheck-jest'.")
@@ -122,19 +116,6 @@
        (file-exists-p
         (format "%snode_modules/.bin/jest"
                 (flycheck-jest--find-jest-project-directory)))))
-
-(defun flycheck-jest--result-path (&optional buffer)
-  "Return the path `flycheck-jest' writes json reports to.
-
-If BUFFER is not nil, use that to determine the base of the file name."
-  (unless (file-exists-p flycheck-jest-report-directory)
-    (make-directory flycheck-jest-report-directory))
-  (let ((base-name
-         (file-name-base (if buffer
-                             (buffer-file-name buffer)
-                           buffer-file-name))))
-    (expand-file-name (format "%s/%s-report.json"
-                              flycheck-jest-report-directory base-name))))
 
 (defun flycheck-jest--parse (output checker buffer)
   "`flycheck' parser for jest output.
