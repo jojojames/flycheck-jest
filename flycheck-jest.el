@@ -76,8 +76,6 @@
             "--json"
             "--testPathPattern"
             (eval buffer-file-name)
-            "--outputFile"
-            (eval (flycheck-jest--result-path))
             (eval flycheck-jest-extra-flags))
   :error-parser flycheck-jest--parse
   :modes (web-mode js-mode typescript-mode rjsx-mode)
@@ -138,23 +136,24 @@ If BUFFER is not nil, use that to determine the base of the file name."
     (expand-file-name (format "%s/%s-report.json"
                               flycheck-jest-report-directory base-name))))
 
-(defun flycheck-jest--parse (_output checker buffer)
+(defun flycheck-jest--parse (output checker buffer)
   "`flycheck' parser for jest output.
 
 CHECKER is the jest checker.
 BUFFER is the buffer being checked."
-  (let* ((jest-result-file (flycheck-jest--result-path buffer))
-         (json (json-read-file jest-result-file)))
-    (let ((jest-results (flycheck-jest--parse-json json)))
-      (mapcar (lambda (jest-result)
-                (flycheck-error-new-at
-                 (plist-get jest-result :line)
-                 (plist-get jest-result :column)
-                 'error (plist-get jest-result :error)
-                 :checker checker
-                 :buffer buffer
-                 :filename (plist-get jest-result :filename)))
-              jest-results))))
+  (let* ((json-entries (flycheck-parse-json output))
+         (jest-results (mapcan (lambda (json-entry)
+                                 (flycheck-jest--parse-json json-entry))
+                               json-entries)))
+    (seq-map (lambda (jest-result)
+               (flycheck-error-new-at
+                (plist-get jest-result :line)
+                (plist-get jest-result :column)
+                'error (plist-get jest-result :error)
+                :checker checker
+                :buffer buffer
+                :filename (plist-get jest-result :filename)))
+             jest-results)))
 
 (defun flycheck-jest--parse-json (json)
   "Parse JSON and return result.
@@ -165,7 +164,8 @@ Result is a list of plists with the form:
   :column 23
   :error \"This is an error message.\"
   :filename \"absolute-path-to-file\")"
-  (when (eq (alist-get 'success json) :json-false)
+  (when (and (assq 'success json)
+             (not (alist-get 'success json)))
     (let ((testResults (alist-get 'testResults json)))
       (car
        (seq-map
