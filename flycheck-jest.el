@@ -174,8 +174,8 @@ Result is a list of plists with the form:
             (mapcar
              (lambda (s)
                (cond
-                ((string-match-p "at Object.<anonymous>" s)
-                 (let* ((split (split-string s "at Object.<anonymous>" t))
+                ((string-match-p "at Object." s)
+                 (let* ((split (split-string s "at Object." t))
                         (error-message (string-trim (car split)))
                         (linenumbers-str (cadr split))
                         (line (flycheck-jest--extract-line linenumbers-str))
