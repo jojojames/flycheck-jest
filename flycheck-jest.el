@@ -66,7 +66,7 @@
 (flycheck-def-executable-var jest "jest")
 
 (flycheck-def-option-var flycheck-jest-extra-flags nil jest
-  "Extra flags prepended to arguments of jest."
+  "Extra flags appended to arguments of jest."
   :type '(repeat (string :tag "Flags"))
   :safe #'flycheck-string-list-p)
 
@@ -77,7 +77,8 @@
             "--testPathPattern"
             (eval buffer-file-name)
             "--outputFile"
-            (eval (flycheck-jest--result-path)))
+            (eval (flycheck-jest--result-path))
+            (eval flycheck-jest-extra-flags))
   :error-parser flycheck-jest--parse
   :modes (web-mode js-mode typescript-mode rjsx-mode)
   :predicate
